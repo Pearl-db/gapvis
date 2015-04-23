@@ -1,6 +1,7 @@
 
-@import "bootstrap.less";
-
+//@import "bootstrap.less";
+@import "dependencies.less";
+@import "network.less";
 // ---------------------------------------------------
 // Settings
 // ---------------------------------------------------
@@ -30,6 +31,7 @@ html, body {
 }
 h1, h2, h3, h4 {
     color: #555;
+    margin: 0px;
 }
 h1, h4 {
     font-style: italic;
@@ -60,12 +62,20 @@ header {
             color: @linkColor;
             text-decoration: none;
         }
+      /*  
+        font-family: Georgia,"Times New Roman",Times,serif;
+        
+        font-weight: bold;
+        font-size: 24px; */
     }
     
     nav {
         margin: .4em 2em;
         float: left;
         font-weight: bold;
+        a {
+        	font-size: @font-size-small;
+        }
     }
 }
 
@@ -79,6 +89,18 @@ footer {
     a:link, a:visited { color: @discreet-text; }
 }
 
+// ---------------------------------------------------
+// Grid system
+// ---------------------------------------------------
+.row-fluid {
+	.make-row();
+}
+.span7 {
+	.make-lg-column(7);
+}
+.span5 {
+	.make-lg-column(5);
+}
 
 // ---------------------------------------------------
 // Layout styles
@@ -124,6 +146,63 @@ footer {
         width: 100%;
         // height set with JS
     }
+	
+	.left-column{
+		position:absolute;
+		width: 40%;
+	}
+	.right-column{
+		margin-left: 40%;
+		position:absolute;
+		width: 60%;
+	}
+// 		.left-panel{
+// 			position:absolute;
+// 			width: 60%;
+// 		}
+// 		.right-panel{
+// 			margin-left: 60%;
+// 			position:absolute;
+// 			width: 40%;
+// 		}		
+// 	}
+	/*
+	.left-panel {
+		.fill {
+			width: 98%;
+		}
+	}
+	*/
+}
+// for place details view
+.layout-book-2panel{
+	.layout{
+		.bottom-slot{
+		 	.left-panel{
+		 		position: absolute;
+				width: 40%;
+		 	}
+			.right-panel{
+				margin-left: 40%;
+				position: absolute;
+				width: 60%;
+			}
+		}		
+	}
+}
+// for reading view
+.layout-book-3panel{
+	.bottom-slot{
+	 	.left-column{
+	 		position: absolute;
+			width: 60%;
+	 	}
+		.right-column{
+			margin-left: 60%;
+			position:absolute;
+			width: 40%;
+		}
+	}
 }
 
 // layout-specific styles
@@ -260,16 +339,30 @@ footer {
     }
 }
 
+// fix for span5 width in place view
+.place-view .span5 .fill {
+	width: 98.5%;
+}
+
+// fix for span5 width in summary view
+.summary-view .span7 .fill {
+	width: 98.5%;
+}
+.summary-view .span5 .fill {
+	width: 96.5%;	
+}
+
 // place frequency bars view
 .freq-bars-view {
     text.title {
         text-anchor: end;
-        font-size: 10px;
+        font-size: 11px;
         cursor: pointer;
     }
+    font-size: 12px;
 }
 
-.frequency-legend-view {
+.timemap-legend-view {
     text-align: right;
     
     img {
@@ -280,7 +373,7 @@ footer {
 // navigation bar for book layouts
 .navigation-view {
     float: right;
-    width: 410px;
+    width: 525px;
     margin-left: 20px;
     text-align: right;
     
@@ -290,10 +383,13 @@ footer {
     
     a {
         vertical-align: top;
+        font-size: @font-size-smaller;
     }
     
     button {
         font-weight: bold;
+        font-size: @font-size-smaller;
+        font-family: 'Lucida Grande';
     }
 }
 
@@ -315,6 +411,11 @@ footer {
         font-family: Georgia, Garamond, serif;
         font-variant: lining-nums;
     }
+}
+.imagetoggle {
+	.control {
+//		display: none;
+	}
 }
 
 // timemap view
@@ -346,7 +447,8 @@ footer {
     position: absolute;
     top: 0;
     bottom: 0;
-    padding: 1.5em 12px;
+/*    padding: 1.5em 12px; */
+    padding: 0.5em 12px; 
     display: none;
     overflow: auto;
     font-size: 1.2em;
@@ -362,7 +464,7 @@ footer {
     
 }
 
-// page summary view
+// place summary view
 .place-summary {
     font-family: @serifFontFamily;
     
@@ -376,9 +478,24 @@ footer {
         margin: 0 0 .5em 0;
     }
 }
-.related-places-view, .book-refs-view {
+.place-references-view, .related-places-view, .book-refs-view {
     h4 {
         margin-top: 0;
+    }
+}
+.place-summary-view {
+    span.reference {
+	    color: @linkColor;
+	    cursor: pointer;
+	    font-weight: normal;
+    
+	    &:hover {
+	        color: @linkColorHover;
+	    }
+    
+	    &.hi {
+	        background: yellow;
+	    }
     }
 }
 .related-places-view p {

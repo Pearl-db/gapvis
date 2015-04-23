@@ -1,10 +1,11 @@
 /*
  * TimeMap View
  */
-define(['gv', 'views/BookView', 'views/PlaceFrequencyBarsView'], 
-    function(gv, BookView, PlaceFrequencyBarsView) {
+define(['gv', 'views/BookView', 'views/PlaceFrequencyBarsView', 'views/PlaceReferencesView'], 
+    function(gv, BookView, PlaceFrequencyBarsView, PlaceReferencesView) {
     
-    var state = gv.state;
+    var state = gv.state,
+		settings = gv.settings;
     
     // View: PlaceSummaryView
     return BookView.extend({
@@ -39,11 +40,34 @@ define(['gv', 'views/BookView', 'views/PlaceFrequencyBarsView'],
                     place: place,
                     el: view.$('div.frequency-bars')[0]
                 });
+				// add place references
+				var placeRefs = view.placeRefs = new PlaceReferencesView({
+					model: book,
+					place: place,
+					el: view.$('div.place-references')[0]
+				});
                 // render sub-elements
                 freqBars.render();
+				placeRefs.render();
                 view.renderBarHighlight();
             });
+			
+			// Hide report a problem if link null
+			if(settings.REPORT_PROBLEM_PLACE_URL === false){
+				this.$el.find('.change-this, .change-this-divider').hide();
+			}
             return this;
+        },
+		
+		uiReportAProblem: function(){
+			if(settings.REPORT_PROBLEM_PLACE_URL){
+				var placeId = state.get('placeid')
+				var link = settings.REPORT_PROBLEM_PLACE_URL.replace('{place-id}', placeId);
+				window.open(link);
+			}
+		},
+        events: {
+            'click .change-this':     'uiReportAProblem'
         },
         
         renderBarHighlight: function() {

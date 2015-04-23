@@ -6,8 +6,6 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
         settings = gv.settings,
         // map styles
         mapStyle = settings.mapStyle,
-        scaleColors = settings.scaleColors,
-        colorThemes = settings.colorThemes,
         // band info
         bandInfo = [
             Timeline.createBandInfo({
@@ -24,7 +22,7 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
                 eventSource:    false
             })
         ];
-    
+
     // View: TimemapView
     return BookView.extend({
         className: 'timemap-view panel fill',
@@ -45,12 +43,36 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
             view.labelUtils = view.labelUtils || new LabelUtils(
                 bandInfo, view.model.labels(), function() { return false; }
             );
+			
+			// start support for sections
+			// override labeller
+			if(typeof view.model.attributes.sections !== 'undefined'){
+
+				view.labelUtils.labeller = {
+					labelInterval: function(date, intervalUnit) {
+						var book = view.model.pages.book; // spaghetti here...
+						var label = view.labelUtils.dateToLabel(date);
+						return {
+							text: book.pageIdToRef(label).label,
+							emphasized: view.labelUtils.emphasize(label)
+						};
+					}
+				};
+
+				for (var x=0; x<bandInfo.length; x++) {
+					bandInfo[x].labeller = view.labelUtils.labeller;
+				}
+			}	
+			// end support for sections
+			
             return view.labelUtils;
         },
         
         render: function() {
             var view = this,
                 book = view.model,
+		        scaleColors = settings.scaleColors,
+		        colorThemes = settings.colorThemes,
                 // create themes by frequency
                 colorScale = d3.scale.quantize()
                     .domain([1, book.places.first().get('frequency')])
@@ -96,6 +118,7 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
                 return loader;
             }
             function implFormatUrl(url, start, end) {
+
                 return [
                     labelUtils.dateToLabel(start),
                     labelUtils.dateToLabel(end)
@@ -140,13 +163,22 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
                                 loader: new InMemoryProgressiveLoader({
                                     // standard loader options
                                     transformFunction: function(item) {
-                                        var theme = colorScale(item.options.place.get('frequency')),
-                                            opts = item.options,
+                                        var opts = item.options,
                                             size = 18,
-                                            color = theme.color,
                                             gmaps = google.maps;
+											
+										var	theme = {};
+                                        // if themes by type is enabled
+										if(state.get('placeTheme') == 'feature') {
+											theme = settings.themeByType(item.options.place);
+										}else{
+											theme = colorScale(item.options.place.get('frequency'));
+										}
+                                        color = theme.color;
+    									
                                         // set start
                                         item.start = labelUtils.getLabelIndex(item.options.page.id) + ' AD';
+
                                         // set theme
                                         opts.theme = theme;
                                         // set marker images
@@ -176,7 +208,12 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
                 // set the map to our custom style
                 var gmap = tm.getNativeMap();
                 gmap.setOptions({
-                    styles: mapStyle
+                    styles: mapStyle,
+					panControl: true,
+					zoomControl: true,
+					  zoomControlOptions: {
+					    style: google.maps.ZoomControlStyle.LARGE
+					  }
                 });
                 
                 // set bounds if necessary
@@ -234,8 +271,8 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
         },
         
         // UI update functions
-        
         updateTimeline: function() {
+
             var view = this,
                 animate = !(state.get('scrolljump'));
             view.scrollTo(state.get('pageid') || view.model.firstId(), animate);
@@ -296,6 +333,7 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
         },
         
         // go to a specific page
+				// 
         scrollTo: function(pageId, animate) {
             var view = this,
                 labelUtils = view.getLabeller(), 
@@ -304,6 +342,7 @@ define(['gv', 'views/BookView', 'views/InfoWindowView'], function(gv, BookView, 
             if (view.animation) {
                 view.animation.stop();
             }
+			
             if (animate) {
                 // insert our variable into the closure. Ugly? Very.
                 SimileAjax.Graphics.createAnimation = function(f, from, to, duration, cont) {

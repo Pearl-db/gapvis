@@ -6,30 +6,32 @@ define({
     globalViews: ['views/MessageView'],
     views: {
         'index': {
-            layout: '#layout-2col',
+            layout: '#layout-joth',
             className: 'index-view',
             router: ['', 'index'],
             slots: {
-                '.left-column': {
+                '.left-content': {
                     layout: 'views/BookListView'
                 },
-                '.right-column': '#index-overview-template'
+                '.right-column': ['#index-overview-template']
             }
         },
         'book-summary': {
-            layout: '#layout-book-3panel',
+            layout: '#layout-joth',
             className: 'summary-view',
             router: 'book/:bookid',
             slots: {
                 '.navigation-view': 'views/NavigationView',
-                '.book-title-view': 'views/BookTitleView',
-                '.text-slot': 'views/BookSummaryTextView',
-                '.left-panel': 'views/BookSummaryMapView',
-                '.right-panel': 'views/PlaceFrequencyBarsView'
+                '.left-title': 'views/BookTitleView',
+                '.left-content': 'views/TimeMapView',
+                '.right-column': [
+                    'views/PlaceFrequencyBarsView',
+                    'views/SocialNetworkView'
+                ]
             }
         },
         'reading-view': {
-            layout:  '#layout-book-2panel',
+            layout: '#layout-joth',
             className: 'reading-view',
             router: [
                 'book/:bookid/read', 
@@ -38,25 +40,25 @@ define({
             ],
             slots: {
                 '.navigation-view': 'views/NavigationView',
-                '.book-title-view': 'views/BookTitleView',
-                '.left-panel': {
-                    layout: '#layout-full-top',
-                    slots: {
-                        '.top-slot': 'views/PagesView',
-                        '.bottom-slot': 'views/PageControlView'
-                    }
-                },
-                '.right-panel': {
-                    layout: '#layout-full-top',
-                    slots: {
-                        '.top-slot': 'views/TimeMapView',
-                        '.bottom-slot': 'views/FrequencyLegendView'
-                    }
-                }
+                '.subnavigation-view': 'views/PageControlView',
+                '.left-title': 'views/BookTitleView',
+                '.left-content': 'views/PagesView',
+                '.right-column': [
+                    {
+                        layout: '#layout-full-top',
+                        slots: {
+                            '.top-slot': 'views/TimeMapView',
+                            '.bottom-slot': 'views/TimeMapLegendView'
+                        }
+                    },
+                    'views/SocialNetworkView',
+                    'views/CitationsView',
+                    'views/AnnotatorsView'
+                ]
             }
         },
         'place-view': {
-            layout:  '#layout-book-2panel',
+            layout:  '#layout-joth',
             className: 'place-view',
             router: 'book/:bookid/place/:placeid',
             refreshOn: 'change:placeid',

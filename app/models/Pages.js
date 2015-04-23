@@ -1,10 +1,9 @@
 /*
  * Page model
  */
-define(['gv', 'models/Model', 'models/Collection'], function(gv, Model, Collection) {
-    var settings = gv.settings,
-        Page;
-       
+define(['models/Model', 'models/Collection'], function(Model, Collection, OpenAnnotation) {
+    var Page;
+
     // Model: Page
     Page = Model.extend({
         type: 'page',
@@ -13,23 +12,27 @@ define(['gv', 'models/Model', 'models/Collection'], function(gv, Model, Collecti
             places: []
         }, 
         
-        initialize: function() {
+        init: function() {
+
             this.set({
                 title:'Page ' + this.id
             });
         },
         
         isFullyLoaded: function() {
-            return !!this.get('text');
+            return !!this.get('text'); // FIXME this may not exists if multilang book
         }
     });
     
     // Collection: PageList
+    /**
+     * Collection of Page
+     *     Instantiate and retrieve things through @this.book.id
+     * @type Collection.Pages
+     */
     return Collection.extend({
-        model: Page,
-        url: function() {
-            return settings.API_ROOT +  '/books/' + this.book.id + '/page';
-        }
+        type: "pages",
+        model: Page
     });
     
 });
